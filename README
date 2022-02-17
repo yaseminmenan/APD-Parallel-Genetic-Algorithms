@@ -1,0 +1,59 @@
+Menan Yasemin 336CC - Tema 1 APD
+
+In cadrul acestei teme am paralelizat implementarea secventiala a unui program 
+care ruleaza un algoritm genetic pentru a rezolva problema rucsacului. 
+
+M-am folosit de fisierele din schelet. Am lasat sack_object.h neschimbat, am
+modificat usor structura din individual.h, am creat my_arg.h, iar pe fisierele
+genetic_algorithm_par.c, genetic_algorithm_par.c, si tema1_par.c le-am modificat
+mai mult pentru a realiza paralelizarea.
+
+
+-- individual.h ---
+
+Am adaugat in structura campul nr_one ca sa retin numarul de cromozomi de 1 ai
+fiecarui individ pentru a face functia cmpfunc din genetic_algorithm_par.c
+mai eficienta.
+
+-- my_arg.h ---
+
+Fisierul contine structura my_arg in care retin variabilele date thread-ului
+pentru a le folosi in functia run_genetic_algorithm.
+
+-- tema1_par.c --
+
+Dupa ce citesc si retin variabilele din fisierul dat ca input, aloc spatiu 
+pentru generatia curenta si urmatoarea, apoi aleg valorile initiale pentru 
+prima generatie. Initializez bariera.
+
+Creez thread-urile, in care trimit referinte la toate variabilele programului 
+pentru a evita folosirea valorilor globale.
+
+Dau join la thread-uri, care vor lucra in paralel in functia
+run_genetic_algorithm.
+
+La final, eliberez memoria alocata in program si distrug bariera.
+
+-- genetic_algorithm_par.c ---
+
+Am pastrat majoritatea functiilor din genetic_algorithm.c dat in schelet. Dar
+am modificat cmpfunc si compute_fitness_function.
+
+In cmpfunc nu mai este necesar sa calculez de fiecare data pentru toti indivizii
+numar de cromozomi de 1 atunci cand apelez quicksort, deoarece ii retin in 
+nr_one.
+
+Am paralelizat functia compute_fitness_function in compute_fitness_function_par 
+care primeste variabilele de start si end pentru parcurgerea array-ului si
+realizarea calculelor.
+
+In functia run_genetic_algorithm primesc argumentele fiecarui thread, si, pentru
+fiecare generatie paralelizez calculele folosind start si end pentru operatiile 
+de calculare a fitness-ului indivizilor, de selectie, de mutatie si de crossover.
+Plasez bariere pentru a astept ca toate thread-urile sa isi termine calculele 
+inainte de a sorta array-ul folosind quicksort si pentru a suprascrie generatia
+curenta cu noua generatie. Dupa suprascriere, recalculez numarul de cromozomi de
+1 ai indivizilor acesteia tot paralel calculand start si end.
+
+La final, calculez fitness-ul indivizilor ultimei generatii, pun o bariera si 
+sortez array-ul.
